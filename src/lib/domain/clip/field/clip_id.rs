@@ -1,1 +1,1 @@
-pub struct ClipId(String);
+
