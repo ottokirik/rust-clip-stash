@@ -39,3 +39,35 @@ impl TryFrom<Clip> for crate::domain::Clip {
 pub struct GetClip {
     pub(in crate::data) short_code: String,
 }
+
+impl From<ShortCode> for GetClip {
+    fn from(short_code: ShortCode) -> Self {
+        GetClip {
+            short_code: short_code.into_inner(),
+        }
+    }
+}
+
+impl From<String> for GetClip {
+    fn from(short_code: String) -> Self {
+        GetClip { short_code }
+    }
+}
+
+pub struct NewClip {
+    pub(in crate::data) clip_id: String,
+    pub(in crate::data) short_code: String,
+    pub(in crate::data) content: String,
+    pub(in crate::data) title: Option<String>,
+    pub(in crate::data) posted_at: i64,
+    pub(in crate::data) expires_at: Option<NaiveDateTime>,
+    pub(in crate::data) password: Option<String>,
+}
+
+pub struct UpdateClip {
+    pub(in crate::data) short_code: String,
+    pub(in crate::data) content: String,
+    pub(in crate::data) title: Option<String>,
+    pub(in crate::data) expires_at: Option<i64>,
+    pub(in crate::data) password: Option<String>,
+}
