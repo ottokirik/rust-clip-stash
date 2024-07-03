@@ -1,14 +1,15 @@
+use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::response::content::RawHtml;
-use rocket::response::status;
-use rocket::State;
+use rocket::response::{status, Redirect};
+use rocket::{uri, State};
 
 use crate::data::AppDatabase;
-use crate::service::{action, ServiceError};
+use crate::service::{self, action, ServiceError};
 use crate::ShortCode;
 
 use super::renderer::Renderer;
-use super::{ctx, PageError};
+use super::{ctx, form, PageError};
 
 #[rocket::get("/")]
 fn home(renderer: &State<Renderer<'_>>) -> RawHtml<String> {
@@ -50,8 +51,63 @@ async fn get_clip(
     }
 }
 
+#[rocket::post("/", data = "<form>")]
+async fn new_clip(
+    form: Form<Contextual<'_, form::NewClip>>,
+    database: &State<AppDatabase>,
+    renderer: &State<Renderer<'_>>,
+) -> Result<Redirect, (Status, RawHtml<String>)> {
+    let form = form.into_inner();
+
+    if let Some(value) = form.value {
+        let req = service::ask::NewClip {
+            content: value.content,
+            title: value.title,
+            expires_at: value.expires_at,
+            password: value.password,
+        };
+
+        match action::new_clip(req, database.get_pool()).await {
+            Ok(clip) => Ok(Redirect::to(uri!(get_clip(short_code = clip.short_code)))),
+            Err(err) => {
+                eprintln!("internal error: {}", err);
+                Err((
+                    Status::InternalServerError,
+                    RawHtml(renderer.render(
+                        ctx::Home::default(),
+                        &["a server error occurred. please try again"],
+                    )),
+                ))
+            }
+        }
+    } else {
+        let errors = form
+            .context
+            .errors()
+            .map(|err| {
+                use rocket::form::error::ErrorKind;
+
+                if let ErrorKind::Validation(msg) = &err.kind {
+                    msg.as_ref()
+                } else {
+                    eprintln!("unhandled error: {}", err);
+                    "an error occurred. please try again"
+                }
+            })
+            .collect::<Vec<_>>();
+        Err((
+            Status::BadRequest,
+            RawHtml(renderer.render_with_data(
+                ctx::Home::default(),
+                ("clip", &form.context),
+                &errors,
+            )),
+        ))
+    }
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-    rocket::routes![home, get_clip]
+    rocket::routes![home, get_clip, new_clip]
 }
 
 pub mod catcher {

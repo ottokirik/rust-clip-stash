@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use crate::domain::clip::ClipError;
 
-#[derive(Clone, Debug, Deserialize, Serialize, From)]
+#[derive(Clone, Debug, Deserialize, Serialize, From, UriDisplayQuery, UriDisplayPath)]
 pub struct ShortCode(String);
 
 impl ShortCode {
@@ -61,7 +61,7 @@ impl FromStr for ShortCode {
     }
 }
 
-use rocket::request::FromParam;
+use rocket::{request::FromParam, UriDisplayPath, UriDisplayQuery};
 
 impl<'r> FromParam<'r> for ShortCode {
     type Error = &'r str;
