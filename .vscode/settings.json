@@ -2,5 +2,12 @@
   "rust-analyzer.server.extraEnv": {
     "DATABASE_URL": "sqlite:data.db"
   },
-  "cSpell.words": ["chrono", "sqlx", "thiserror"]
+  "cSpell.words": [
+    "chrono",
+    "clipstash",
+    "dotenv",
+    "sqlx",
+    "structopt",
+    "thiserror"
+  ]
 }
