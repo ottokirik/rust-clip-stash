@@ -18,7 +18,7 @@ impl<'a> Renderer<'a> {
             .register_templates_directory(
                 template_dir,
                 DirectorySourceOptions {
-                    tpl_extension: String::from("hbs"),
+                    tpl_extension: String::from(".hbs"),
                     hidden: false,
                     temporary: false,
                 },
