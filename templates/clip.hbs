@@ -17,9 +17,9 @@
         </div>
         <div class="column is-one-third">
           <div class="field">
-            <label for="expires" class="label">Expires</label>
+            <label for="expires_at" class="label">Expires</label>
             <div class="control has-icons-left">
-              <input class="input" type="text" placeholder="Expires" name="expires" value="{{clip.expires}}" readonly>
+              <input class="input" type="text" placeholder="Expires" name="expires_at" value="{{clip.expires_at}}" readonly>
               <span class="icon is-left"><i class="fas fa-clock"></i></span>
             </div>
           </div>
@@ -27,7 +27,7 @@
             <div class="level">
               <div class="level-item has-text-centered">
                 <div class="is-centered">
-                  <a href="/clip/raw/{{clip.shortcode}}" class="is-link has-text-weight-bold">View Raw</a>
+                  <a href="/clip/raw/{{clip.short_code}}" class="is-link has-text-weight-bold">View Raw</a>
                 </div>
               </div>
               <div class="level-item has-text-centered">
