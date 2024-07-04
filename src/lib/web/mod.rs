@@ -1,5 +1,6 @@
 pub mod ctx;
 pub mod form;
+pub mod hit_counter;
 pub mod http;
 pub mod renderer;
 

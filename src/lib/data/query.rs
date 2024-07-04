@@ -7,6 +7,23 @@ use super::model;
 
 type Result<T> = std::result::Result<T, DataError>;
 
+pub async fn increase_hit_count(
+    short_code: &ShortCode,
+    hits: u32,
+    pool: &DatabasePool,
+) -> Result<()> {
+    let short_code = short_code.as_str();
+
+    Ok(sqlx::query!(
+        "UPDATE clips SET hits = hits + ? WHERE short_code = ?",
+        hits,
+        short_code
+    )
+    .execute(pool)
+    .await
+    .map(|_| ())?)
+}
+
 pub async fn get_clip<M: Into<model::GetClip>>(
     model: M,
     pool: &DatabasePool,

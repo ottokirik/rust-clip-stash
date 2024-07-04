@@ -11,9 +11,11 @@ path = "src/lib/mod.rs"
 
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
+crossbeam-channel = "0.5.13"
 derive_more = "0.99.18"
 dotenv = "0.15.0"
 handlebars = { version = "5.1.2", features = ["dir_source"] }
+parking_lot = "0.12.3"
 rand = "0.8.5"
 rocket = { version = "0.5.1", features = ["json"] }
 serde = { version = "1.0.203", features = ["derive"] }

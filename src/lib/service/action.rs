@@ -1,6 +1,7 @@
 use crate::{
-    data::{query, DatabasePool},
+    data::{query, DatabasePool, Transaction},
     domain::Clip,
+    ShortCode,
 };
 
 use super::{ask, ServiceError};
@@ -29,4 +30,20 @@ pub async fn get_clip(req: ask::GetClip, pool: &DatabasePool) -> ResultClip {
     } else {
         Ok(clip)
     }
+}
+
+pub async fn increase_hit_count(
+    short_code: &ShortCode,
+    hits: u32,
+    pool: &DatabasePool,
+) -> Result<()> {
+    Ok(query::increase_hit_count(short_code, hits, pool).await?)
+}
+
+pub async fn begin_transaction(pool: &DatabasePool) -> Result<Transaction<'_>> {
+    Ok(pool.begin().await?)
+}
+
+pub async fn end_transaction(transaction: Transaction<'_>) -> Result<()> {
+    Ok(transaction.commit().await?)
 }
