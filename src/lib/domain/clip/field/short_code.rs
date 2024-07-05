@@ -4,7 +4,9 @@ use std::str::FromStr;
 
 use crate::domain::clip::ClipError;
 
-#[derive(Clone, Debug, Deserialize, Serialize, From, UriDisplayQuery, UriDisplayPath)]
+#[derive(
+    Clone, Debug, Deserialize, Serialize, From, UriDisplayQuery, UriDisplayPath, Hash, PartialEq, Eq,
+)]
 pub struct ShortCode(String);
 
 impl ShortCode {
