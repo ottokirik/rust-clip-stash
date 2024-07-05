@@ -1,6 +1,7 @@
 use crate::{
     data::{query, DatabasePool, Transaction},
     domain::Clip,
+    web::api::ApiKey,
     ShortCode,
 };
 
@@ -46,4 +47,21 @@ pub async fn begin_transaction(pool: &DatabasePool) -> Result<Transaction<'_>> {
 
 pub async fn end_transaction(transaction: Transaction<'_>) -> Result<()> {
     Ok(transaction.commit().await?)
+}
+
+pub async fn generate_api_key(pool: &DatabasePool) -> Result<ApiKey> {
+    let api_key = ApiKey::default();
+
+    Ok(query::save_api_key(api_key, pool).await?)
+}
+
+pub async fn revoke_api_key(
+    api_key: ApiKey,
+    pool: &DatabasePool,
+) -> Result<query::RevocationStatus> {
+    Ok(query::revoke_api_key(api_key, pool).await?)
+}
+
+pub async fn is_valid_api_key(api_key: ApiKey, pool: &DatabasePool) -> Result<bool> {
+    Ok(query::is_valid_api_key(api_key, pool).await?)
 }
