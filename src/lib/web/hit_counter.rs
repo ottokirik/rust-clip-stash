@@ -50,7 +50,16 @@ impl HitCounter {
                             eprintln!("failed to process message: {}", err);
                         }
                     }
-                    Err(err) => todo!(),
+                    Err(err) => match err {
+                        crossbeam_channel::TryRecvError::Empty => {
+                            std::thread::sleep(std::time::Duration::from_secs(5));
+
+                            if let Err(err) = tx_clone.send(HitCountMsg::Commit) {
+                                eprintln!("failed to send commit message: {}", err);
+                            }
+                        }
+                        _ => break,
+                    },
                 }
             }
         });
