@@ -36,3 +36,15 @@ pub struct RocketConfig {
     pub hit_counter: HitCounter,
     pub maintenance: Maintenance,
 }
+
+#[cfg(test)]
+pub mod test {
+    pub fn async_runtime() -> tokio::runtime::Runtime {
+        tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
+            .max_blocking_threads(1)
+            .enable_time()
+            .build()
+            .expect("failed to spawn tokio runtime")
+    }
+}
