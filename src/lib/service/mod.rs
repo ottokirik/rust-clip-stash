@@ -7,10 +7,13 @@ use crate::{ClipError, DataError};
 pub enum ServiceError {
     #[error("clip error: {0}")]
     Clip(#[from] ClipError),
+
     #[error("database error: {0}")]
     Data(DataError),
+
     #[error("not found")]
     NotFound,
+
     #[error("permission error: {0}")]
     PermissionError(String),
 }

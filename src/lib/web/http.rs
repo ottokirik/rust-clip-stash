@@ -215,3 +215,78 @@ pub mod catcher {
         catchers![default, internal_error, not_found]
     }
 }
+
+#[cfg(test)]
+pub mod test {
+    use crate::{
+        data::AppDatabase,
+        web::{test::init_test_client, PASSWORD_COOKIE},
+    };
+    use rocket::http::Status;
+
+    #[test]
+    fn gets_home() {
+        let (_, client) = init_test_client();
+
+        let response = client.get("/").dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+
+    #[test]
+    fn error_on_missing_clip() {
+        let (_, client) = init_test_client();
+
+        let response = client.get("/clip/not_found").dispatch();
+        assert_eq!(response.status(), Status::NotFound);
+    }
+
+    #[test]
+    fn requires_password_when_applicable() {
+        use crate::domain::clip::field::{Content, ExpiresAt, Password, Title};
+        use crate::service;
+        use rocket::http::{ContentType, Cookie};
+
+        let (rt, client) = init_test_client();
+        let db = client.rocket().state::<AppDatabase>().unwrap();
+
+        let req = service::ask::NewClip {
+            content: Content::new("content").unwrap(),
+            expires_at: ExpiresAt::default(),
+            password: Password::new("123".to_owned()).unwrap(),
+            title: Title::default(),
+        };
+
+        let clip = rt
+            .block_on(async move { service::action::new_clip(req, db.get_pool()).await })
+            .unwrap();
+
+        let response = client
+            .get(format!("/clip/{}", clip.short_code.as_str()))
+            .dispatch();
+        assert_eq!(response.status(), Status::NotFound);
+
+        let response = client
+            .get(format!("/clip/raw/{}", clip.short_code.as_str()))
+            .dispatch();
+        assert_eq!(response.status(), Status::Unauthorized);
+
+        let response = client
+            .post(format!("/clip/{}", clip.short_code.as_str()))
+            .header(ContentType::Form)
+            .body(format!("{}={}", "password", "123"))
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+
+        let response = client
+            .get(format!("/clip/raw/{}", clip.short_code.as_str()))
+            .cookie(Cookie::new(PASSWORD_COOKIE, "123"))
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+
+        let response = client
+            .get(format!("/clip/raw/{}", clip.short_code.as_str()))
+            .cookie(Cookie::new(PASSWORD_COOKIE, "abc"))
+            .dispatch();
+        assert_eq!(response.status(), Status::Unauthorized);
+    }
+}

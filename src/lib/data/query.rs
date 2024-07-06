@@ -1,5 +1,3 @@
-use std::result;
-
 use sqlx::Row;
 
 use crate::data::{DataError, DatabasePool};
