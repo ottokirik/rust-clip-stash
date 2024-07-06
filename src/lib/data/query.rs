@@ -142,3 +142,12 @@ pub async fn is_valid_api_key(api_key: ApiKey, pool: &DatabasePool) -> Result<bo
             })?,
     )
 }
+
+pub async fn delete_expired(pool: &DatabasePool) -> Result<u64> {
+    Ok(
+        sqlx::query!(r#"DELETE FROM clips WHERE strftime('%s', 'now') > expires_at"#)
+            .execute(pool)
+            .await?
+            .rows_affected(),
+    )
+}

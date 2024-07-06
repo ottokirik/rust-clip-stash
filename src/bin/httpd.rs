@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use clipstash::{
     data::AppDatabase,
+    domain::maintenance::Maintenance,
     rocket,
     web::{hit_counter::HitCounter, renderer::Renderer},
     RocketConfig,
@@ -19,10 +20,12 @@ fn main() {
     let renderer = Renderer::new(opt.template_dir.clone());
     let database = rt.block_on(async move { AppDatabase::new(&opt.connection_string).await });
     let hit_counter = HitCounter::new(database.get_pool().clone(), handle.clone());
+    let maintenance = Maintenance::spawn(database.get_pool().clone(), handle.clone());
     let config = RocketConfig {
         renderer,
         database,
         hit_counter,
+        maintenance,
     };
 
     rt.block_on(async move {
